@@ -93,3 +93,9 @@ class TimeConstrainedDict(dict):
                     continue
                 result.append(value)
             return result
+
+    def __str__(self) -> str:
+        return self.__repr__()
+
+    def __repr__(self) -> str:
+        return "{}".format({k: v[:-1] if len(v[:-1]) > 1 else v[:-1][0] for k, v in dict(self).items()})
