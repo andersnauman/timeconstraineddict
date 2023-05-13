@@ -9,7 +9,7 @@ from timeconstraineddict import TimeConstrainedDict as tdict
 
 def test_normal_dict():
     """ Test a normal dictionary """
-    assert tdict(3) == {}
+    assert isinstance(tdict(), tdict) and isinstance(tdict(), dict) and not tdict()
 
 def test_normal_dict_append():
     """ Test a normal dictionary append """
