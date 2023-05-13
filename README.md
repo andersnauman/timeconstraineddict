@@ -1,3 +1,4 @@
+![Package](https://github.com/andersnauman/timeconstraineddict/actions/workflows/python-package.yml/badge.svg) ![Pylint](https://github.com/andersnauman/timeconstraineddict/actions/workflows/pylint.yml/badge.svg)
 ## Time Constrained Dictionary
 ### Description
 Creates a dictionary where the key/value will expire after the set timelimit (default 60 sec).
