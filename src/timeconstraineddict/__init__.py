@@ -1,11 +1,30 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
+""" Time contrained dictionary """
+
 from threading import Lock
 
 from time import time
 
 class TimeConstrainedDict(dict):
+    """
+    Usage:
+    
+    from timeconstraineddict import TimeConstrainedDict as tdict
+
+    # Set value to expire in 2 seconds
+    d = tdict()
+    d["key"] = "value", 2
+
+    # Set the tuple ("value", 20) to expire in 2 seconds
+    d = tdict()
+    d["key"] = "value", 20, 2
+
+    # Set the default expire time to 5 minutes
+    d = tdict(300)
+    d["key"] = "value"    
+    """
     def __init__(self, max_age=60):
         self.max_age = float(max_age)
 
@@ -19,12 +38,12 @@ class TimeConstrainedDict(dict):
                 _, value_time = dict.__getitem__(self, key)
             except KeyError:
                 return False
-            else:
-                if time() >= value_time:
-                    dict.__delitem__(self, key)
-                    return False
-                return True
-    
+
+            if time() >= value_time:
+                dict.__delitem__(self, key)
+                return False
+            return True
+
     def __setitem__(self, key, value):
         # Assume the last entry in the tuple is the age limit.
         # (value, age)
@@ -52,7 +71,7 @@ class TimeConstrainedDict(dict):
                 raise KeyError(key)
 
             return value
-    
+
     def items(self):
         result = []
         with self.lock:
@@ -63,7 +82,7 @@ class TimeConstrainedDict(dict):
                     continue
                 result.append((key, value))
             return result
-        
+
     def values(self):
         result = []
         with self.lock:

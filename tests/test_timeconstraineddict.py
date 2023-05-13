@@ -1,43 +1,52 @@
-#!/usr/bin/env python3
+#!/usr/bin/env python3tcdd
 # -*- coding: utf-8 -*-
 
-from timeconstraineddict import TimeConstrainedDict as tdict
+""" Test module """
 
 from time import sleep
 
+from timeconstraineddict import TimeConstrainedDict as tdict
+
 def test_normal_dict():
-    assert tdict(3) == dict()
+    """ Test a normal dictionary """
+    assert tdict(3) == {}
 
 def test_normal_dict_append():
-    d = tdict()
-    d["test-key"] = "test-value"
-    assert d["test-key"] == "test-value"
+    """ Test a normal dictionary append """
+    tcd = tdict()
+    tcd["test-key"] = "test-value"
+    assert tcd["test-key"] == "test-value"
 
 def test_timed_value_exist():
-    d = tdict()
-    d["test-key"] = "test-value", 0.2
+    """ Test if timed value still exist """
+    tcd = tdict()
+    tcd["test-key"] = "test-value", 0.2
     sleep(0.1)
-    assert "test-key" in d
+    assert "test-key" in tcd
 
 def test_timed_value_tuple_exist():
-    d = tdict()
-    d["test-key"] = "test-value", 40, 0.2
+    """ Test if a tuple still exist """
+    tcd = tdict()
+    tcd["test-key"] = "test-value", 40, 0.2
     sleep(0.1)
-    assert "test-key" in d and d["test-key"] == ("test-value", 40)    
+    assert "test-key" in tcd and tcd["test-key"] == ("test-value", 40)
 
 def test_timed_value_expire():
-    d = tdict()
-    d["test-key"] = "test-value", 0.2
+    """ Test if a value have been expired """
+    tcd = tdict()
+    tcd["test-key"] = "test-value", 0.2
     sleep(0.3)
-    assert "test-key" not in d
+    assert "test-key" not in tcd
 
 def test_timed_value_max_age_exist():
-    d = tdict(0.1)
-    d["test-key"] = "test-value", 0.3
-    assert "test-key" in d
+    """ Test if the max age can overwrite higher input values """
+    tcd = tdict(0.1)
+    tcd["test-key"] = "test-value", 0.3
+    assert "test-key" in tcd
 
 def test_timed_value_max_age_expire():
-    d = tdict(0.1)
-    d["test-key"] = "test-value", 0.3
+    """ Test if the max age overwrites higher input values """
+    tcd = tdict(0.1)
+    tcd["test-key"] = "test-value", 0.3
     sleep(0.2)
-    assert "test-key" not in d
+    assert "test-key" not in tcd
