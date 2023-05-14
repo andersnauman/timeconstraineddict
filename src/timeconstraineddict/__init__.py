@@ -4,10 +4,10 @@
 """ Time contrained dictionary """
 
 from threading import Lock
-
+from collections.abc import Mapping
 from time import time
 
-class TimeConstrainedDict(dict):
+class TimeConstrainedDict(dict, Mapping):
     """
     Usage:
     
@@ -42,18 +42,26 @@ class TimeConstrainedDict(dict):
             if time() >= value_time:
                 dict.__delitem__(self, key)
                 return False
-            return True
+        return True
 
-    def __setitem__(self, key, value):
-        # Assume the last entry in the tuple is the age limit.
-        # (value, age)
-        # (value, value, age)
-        # Use 0 as the last value if tuple is used but the max_age should be honored
+    def __setitem__(self, key, value, age = 0):
+        """
+        Assume the last entry in the tuple is the age limit.
+        (value, age)
+        (value, value, age)
+        Use 0 as the last value if tuple is used but the max_age should be honored
+        (value, value, 0) = max/default age
+        """
         if isinstance(value, tuple):
-            age, = value[-1:]
+            # Large drawback by assuming the last int/float is a age limit.
+            # TODO: Be creative and less assuming
+            if isinstance(value[-1:][0], (int, float)):
+                age, = value[-1:]
+                value = value[:-1] if len(value[:-1]) > 1 else value[:-1][0]
+            else:
+                value = value[0] if isinstance(value, list) else value
             if age == 0 or age > self.max_age:
                 age = self.max_age
-            value = value[:-1] # Erase the last value from 'value'
         else:
             age = self.max_age
         age = time() + float(age)
@@ -65,12 +73,20 @@ class TimeConstrainedDict(dict):
         with self.lock:
             # Do not catch exception.
             # Dict suppose to return KeyError if key is not found
-            value, value_time = dict.__getitem__(self, key)
+            values = dict.__getitem__(self, key)
+            value = values[:-1] if len(values[:-1]) > 1 else values[:-1][0]
+            value_time, = values[-1:]
             if time() >= value_time:
                 dict.__delitem__(self, key)
                 raise KeyError(key)
+        return value
 
-            return value
+    def __len__(self):
+        return dict.__len__(self)
+
+    def __iter__(self):
+        for item in dict.__iter__(self):
+            yield item
 
     def items(self):
         result = []
@@ -81,7 +97,7 @@ class TimeConstrainedDict(dict):
                     dict.__delitem__(self, key)
                     continue
                 result.append((key, value))
-            return result
+        return result
 
     def values(self):
         result = []
@@ -92,10 +108,14 @@ class TimeConstrainedDict(dict):
                     dict.__delitem__(self, key)
                     continue
                 result.append(value)
-            return result
+        return result
 
     def __str__(self) -> str:
         return self.__repr__()
 
     def __repr__(self) -> str:
-        return "{}".format({k: v[:-1] if len(v[:-1]) > 1 else v[:-1][0] for k, v in dict(self).items()})
+        for k, v in dict(self).items():
+            #print(k)
+            #print(v)
+            pass
+        return "{}".format({k: v[:-1] if isinstance(v, list) and len(v[:-1]) > 1 else v for k, v in dict(self).items()})

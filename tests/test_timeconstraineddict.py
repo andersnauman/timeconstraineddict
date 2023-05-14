@@ -31,6 +31,13 @@ def test_timed_value_tuple_exist():
     sleep(0.1)
     assert "test-key" in tcd and tcd["test-key"] == ("test-value", 40)
 
+def test_timed_value_dictionary_exist():
+    """ Test if a dictionary still exist """
+    tcd = tdict()
+    tcd["test-key"] = {"test-value", 40}, 0.2
+    sleep(0.1)
+    assert "test-key" in tcd and tcd["test-key"] == {"test-value", 40}
+
 def test_timed_value_expire():
     """ Test if a value have been expired """
     tcd = tdict()
@@ -70,14 +77,20 @@ def test_zip():
         continue
 
 def test_unpack():
-    """ Test if dictionary unpack is done properly. Obviously the timer will not be passed on since it gets converted to a pure dictionary. """
+    """
+    Test if dictionary unpack is done properly.
+    Obviously the timer will not be passed on since it gets converted to a pure dictionary.
+    """
     dict1 = tdict()
     dict1["test-key"] = "test-value"
-    dict2 = {"test-key2": "test-value2"}
-
-    # Next line should yield {'test-key': 'test-value'}, not {'test-key': ('test-value', 1684006565.8971586)}
-    assert not {**dict1}
+    dict1["test-key-2"] = "test-value", 20, 2
+    dict1["test-key-3"] = {"test-value", 20}, 2
+    dict1["test-key-4"] = {"test-value", 20}
+    dict2 = {"test-key-5": "test-value"}
 
     dict3 = {**dict1, **dict2}
     assert "test-key" in dict3 and dict3["test-key"] == "test-value"
-
+    assert "test-key-2" in dict3 and dict3["test-key-2"] == ("test-value", 20)
+    assert "test-key-3" in dict3 and dict3["test-key-3"] == {"test-value", 20}
+    assert "test-key-4" in dict3 and dict3["test-key-4"] == {"test-value", 20}
+    assert "test-key-5" in dict3 and dict3["test-key-5"] == "test-value"
