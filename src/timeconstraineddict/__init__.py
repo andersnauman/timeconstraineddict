@@ -114,8 +114,4 @@ class TimeConstrainedDict(dict, Mapping):
         return self.__repr__()
 
     def __repr__(self) -> str:
-        for k, v in dict(self).items():
-            #print(k)
-            #print(v)
-            pass
         return "{}".format({k: v[:-1] if isinstance(v, list) and len(v[:-1]) > 1 else v for k, v in dict(self).items()})
